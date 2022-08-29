@@ -26,4 +26,5 @@ cmake -G "CodeBlocks - Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_C
 ninja
 
 rm -rf /home/nick/sofa/build
+mkdir /home/nick/sofa/build
 cp -a /home/nick/sofa/$version/. /home/nick/sofa/build
