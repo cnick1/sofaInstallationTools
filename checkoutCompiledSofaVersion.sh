@@ -11,4 +11,5 @@ cd ~/sofa-plugins/STLIB && git checkout $version
 cd ~/sofa/$version
 
 rm -rf /home/nick/sofa/build
+mkdir /home/nick/sofa/build
 cp -a /home/nick/sofa/$version/. /home/nick/sofa/build

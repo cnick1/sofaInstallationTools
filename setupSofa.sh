@@ -16,7 +16,7 @@ if [ ! -f "cmake-3.22.2-linux-x86_64.tar.gz" ]
 then
     wget https://github.com/Kitware/CMake/releases/download/v3.22.2/cmake-3.22.2-linux-x86_64.tar.gz
 else
-    echo "file exists."
+    echo "cmake downloader file exists."
 fi
 tar xf cmake-3.22.2-linux-x86_64.tar.gz
 printf "export PATH=\"`pwd`/cmake-3.22.2-linux-x86_64/bin:\$PATH\" # save it in .bashrc if needed\n\n" >> .bashrc
@@ -40,18 +40,22 @@ cd ~/sofa-plugins/STLIB && git checkout v21.12
 cd ~/sofa-plugins/SofaPython3 && git checkout v21.12
 
 cd ~/sofa-plugins/
-touch CMakeLists.txt
-printf "cmake_minimum_required(VERSION 3.11)\n\nfind_package(SofaFramework)\n\nsofa_add_plugin(STLIB/  STLIB VERSION 1.0)\nsofa_add_plugin(SoftRobots/  SoftRobots VERSION 1.0)\nsofa_add_plugin(SofaPython3/ SofaPython3 VERSION 1.0)" >> CMakeLists.txt
-
+if [ -f "CMakeLists.txt" ]
+then
+    echo "CMakeLists.txt already exists."
+else
+    touch CMakeLists.txt
+    printf "cmake_minimum_required(VERSION 3.11)\n\nfind_package(SofaFramework)\n\nsofa_add_plugin(STLIB/  STLIB VERSION 1.0)\nsofa_add_plugin(SoftRobots/  SoftRobots VERSION 1.0)\nsofa_add_plugin(SofaPython3/ SofaPython3 VERSION 1.0)" >> CMakeLists.txt
+fi
 
 cd ~
 if [ ! -f "qt-unified-linux-x64-online.run" ]
 then
     wget https://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run
 else
-    echo "file exists."
+    echo "Qt downloader file exists."
 fi
 chmod +x qt-unified-linux-x64-online.run
 ./qt-unified-linux-x64-online.run 
 
-cmake -G "CodeBlocks - Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_PREFIX_PATH=/home/nick/Qt/5.13.2/gcc_64 -DSOFA_BUILD_METIS=ON -S /home/nick/sofa/src -B /home/nick/sofa/build
+cmake -G "CodeBlocks - Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_PREFIX_PATH=/home/nick/Qt/5.13.2/gcc_64 -S /home/nick/sofa/src -B /home/nick/sofa/build

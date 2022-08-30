@@ -1,11 +1,12 @@
 # Sofa/Linux Installation and Compilation
-NOTE: this documentation is not completely original, and much of it is based on the following non-exhaustive list: 
+Some other sources for instructions on building SOFA:
 * https://www.sofa-framework.org/community/doc/getting-started/build/linux/
 * https://github.com/StanfordASL/soft-robot-control/
 
-I do not claim any intellectual property herein.
 
 This notebook will work through the details to install Linux, configure it, download Sofa and all its dependencies, download all of the tools used to *compile* Sofa, and finally how to compile the source code into an executable binary program. Hopefully, I will be able to cross-compile in Linux for Windows so that I only need to use Linux occasionally.
+
+NOTE: The file setupSofa.sh is a bash script which will do all of the steps in this notebook automatically. This ReadMe file just serves to explain all of the steps, which may help identify any errors which may occur. Try to just run ```bash setupSofa``` first. 
 
 # Preliminaries for formatting a hard drive in Windows to install Linux onto
 0.    To remove an old partition, use Disk Management. If the EFI wont let you delete it, run cmd as admin and run (where x corresponds to the desired disk):
@@ -63,8 +64,8 @@ This will go a lot faster if you can resize the partition you are copying to be 
 Once the drive is cloned, you *should* be able to boot from it on the same computer, but booting to that drive from another computer might just take you to the grub screen. If this happens, boot into linux on a working drive or a live boot from a USB installation medium, and then run ```sudo update-grub```, which should tell grub that there is another linux drive it should recognize to boot from. More information here if necessary: https://askubuntu.com/questions/1205282/ubuntu-cloned-from-hdd-to-ssd-doesnt-boot
 
 
-Useful for resizing partitions, etc:
-Download GParted with this command:
+Useful for resizing partitions, etc.:
+(If it is not already installed) Download GParted with this command:
 ```
 sudo apt-get install gparted
 ```
@@ -94,7 +95,7 @@ sudo apt install git
 mkdir ~/sofa
 mkdir ~/sofa/src
 mkdir ~/sofa/build
-git clone -b https://github.com/sofa-framework/sofa.git ~/sofa/src
+git clone https://github.com/sofa-framework/sofa.git ~/sofa/src
 cd ~/sofa/src && git checkout v21.12
 cd ~/sofa/build 
 ```
@@ -103,49 +104,46 @@ cd ~/sofa/build
 
 
 
-2.   (From Sofa Docs) "First, install the standard compilation toolkit with this command:"
+2.   First we install some standard tools for compiling software:
 ```
 sudo apt update
 sudo apt install build-essential software-properties-common
 ```
 
 
-3.  "Clang is an alternative to GCC. It compiles approximately two times faster ! We recommend to install Clang 5 or newer. To know which Clang versions are available for your distribution, run this command:"
+3.  Next we install the compilers for the C language. 
+Clang is a fast compiler; we can install the latest version available by checking with
 ```
 apt-cache search '^clang-[0-9.]+$'
 ```
-Then, install the latest one with the usual command (example with clang-12):
+and install the latest one with the usual command (example with clang-12):
 ```
 sudo apt install clang-12
 ```
 
 4. 
-<!-- Install CMake: option which seems to be working: 
-```
-sudo apt install cmake cmake-gui
-```
-Option which was working but no longer does? -->
 Install the latest CMake. 
 For example while in home directory, download cmake with
 ```
-wget https://github.com/Kitware/CMake/releases/download/v3.22.2/cmake-3.22.2-linux-x86_64.tar.gz
+cd ~
+wget https://github.com/Kitware/CMake/releases/download/v3.24.1/cmake-3.24.1-linux-x86_64.tar.gz
 ```
 Then, unpack with 
 ```
-tar xf cmake-3.22.2-linux-x86_64.tar.gz
+tar xf cmake-3.24.1-linux-x86_64.tar.gz
 ```
 and add cmake to path:
 Option 1) (With VSCode editor) Run ```code .bashrc``` and add the line
 ```
-export PATH="`pwd`/cmake-3.22.2-linux-x86_64/bin:$PATH" # save it in .bashrc if needed
+export PATH="`pwd`/cmake-3.24.1-linux-x86_64/bin:$PATH" # save it in .bashrc if needed
 ```
 
 or Option 2) run 
 ``` 
-printf "export PATH=\"`pwd`/cmake-3.22.2-linux-x86_64/bin:\$PATH\" # save it in .bashrc if needed\n\n" >> .bashrc
+printf "export PATH=\"`pwd`/cmake-3.24.1-linux-x86_64/bin:\$PATH\" # save it in .bashrc if needed\n\n" >> .bashrc
 ```
 
-Check if it worked with: 
+Check if it worked in a new terminal with: 
 ```
 which cmake # Should give path from above
 which cmake-gui # Should give path from above
@@ -159,7 +157,8 @@ Note, even if you close and reopen the terminal, it should still work!
 sudo apt install ninja-build
 ```
 
-5. Install the following to accelerate compiling subsequent times: 
+5. Cmake supports caching the cmake file so that you can repoen it and edit rather than starting from scratch. 
+Install the following to accelerate compiling subsequent times: 
 ``` 
 sudo apt install ccache 
 ```
@@ -167,13 +166,17 @@ sudo apt install ccache
 6. Install Qt: https://download.qt.io/official_releases/online_installers/
   *   Make sure to enable Charts and WebEngine components.
 
-  Make the ```.run``` file executable with 
 ```
-chmod +x qt-unified-linux-x64-4.4.1-online.run
+wget https://download.qt.io/official_releases/online_installers/qt-unified-linux-x64-online.run
+```
+
+Make the ```.run``` file executable with 
+```
+chmod +x qt-unified-linux-x64-online.run
 ``` 
 Then, run the file with 
 ``` 
-./qt-unified-linux-x64-4.4.1-online.run 
+./qt-unified-linux-x64-online.run 
 ```
 
 If necessary, install the library ```sudo apt install libxcb-xinerama0```
@@ -194,21 +197,14 @@ sudo apt install libopengl0
 ```
 sudo apt install libboost-all-dev
 ```
-<!-- 7. Python 3.7 ** I installed python3.8 using the following
-```
-sudo apt install python3.7-dev python-numpy python-scipy
-``` -->
+
 9. Python 3.8
 ```
 sudo apt install python3 python3-numpy python3-scipy
 ```
   *  Make python3 default
 ```
-sudo su
-```
-Enter password, then run
-``` 
-update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+sudo  update-alternatives --install /usr/bin/python python /usr/bin/python3 1
 ```
 Check python version using ```python --version```
 10. Additional libraries: libPNG, libJPEG, libTIFF, Glew, Zlib
@@ -252,6 +248,9 @@ sudo apt install libblas-dev liblapack-dev
 
 --- 
 ##### Get Anaconda
+NOTE: These steps are only necessary for trying to reproduce Sander's work (https://github.com/StanfordASL/soft-robot-control); however, that repo is broken, so you may as well skip these. The only requirement is pybind11, which can be downloaded without anaconda with ```pip install pybind11==2.6.0```
+
+
 Download Anaconda with 
 ```
 wget https://repo.anaconda.com/archive/Anaconda3-2021.11-Linux-x86_64.sh
@@ -364,36 +363,6 @@ Now you should be able to build SOFA with the plugins enabled. See section Build
 Here you should be able to run cmake-gui and compile SOFA with no plugins. (Scroll down to "Building SOFA" if you want step by step directions). I recommend you do this to make sure nothing is broken up to this point.
 
 <!-- Just run ```cmake-gui``` in the build directory, set the src and build, and click configure. Set CodeBlocks-Ninja, specify native compilers and point to the clang-12 thing. Should be able to configure and generate without modifying anything. There should not be errors, but there will likely be warnings; no problem. When you run ```make -j``` in the build directory, it should finish without throwing errors and you should be able to run the ```runSofa``` program in the bin folder. -->
-<!-- 
-5/4/2022 It seems like Anaconda is causing issues. I have been trying to pin down the issues and it seems that 1) it is useful to use ninja, and 2) it is useful to compile with one plugin at a time (ninja is nice for this since it just compiles the incremental changes you make).  -->
-
-### Fix for <sofa/core/ComponentNameHelper.h> error
-As of 6/23/2022, the fix below should not be necessary. If you cloned all of v21.12 for SOFA AND the plugins, they should work together. Alternatively, if you fast forward/pull the most recent commits from each repository, they should also hopefully work together. The issue arises when using commits from drastically different times, i.e. months apart, during which time it seems the SOFA developers may have moved files around. Hence the below steps are unnecessary and will be removed in the near future.
-
-As of 6/20/2022, the standard SOFA v21.12 and SofaPython3 plugin do not compile out of the box. This is the fix that we (Antoinette and Nick) figured out with John Alora from Stanford's help. 
-
-1) In the Sofa repository directory (/home/nick/sofa/src/), we need to checkout the following commit: 
-```
-git checkout 5698b
-```
-
-2) In the SofaPython3 plugin's repo directory (/home/nick/sofa-plugins/SofaPython3/), we need to checkout the following commit: 
-```
-git checkout 33070ab
-```
-
-3) In the SoftRobots plugin's repo directory (/home/nick/sofa-plugins/SoftRobots/), we need to checkout the following commit:
-```
-git checkout 9d7a98a
-```
-
-4) In the STLIB plugin's repo directory (/home/nick/sofa-plugins/SoftRobots/), we need to checkout the following commit:
-```
-git checkout c572c3c
-```
-
-
-(Useful command for checking commit numbers: ```git log --pretty=format:'%h' -n 1```)
 
 # Building SOFA
 ## Setup your source and build directories 
@@ -422,6 +391,11 @@ cd ~/sofa/src && git checkout v21.12
 cd ~/sofabuild 
 ```
 ## Generate a Makefile with CMake
+0. As an alternative to cmake-gui, you can generate the configuration files with commands like 
+```
+cmake -G "CodeBlocks - Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_PREFIX_PATH=/home/nick/Qt/5.13.2/gcc_64 -DSOFA_BUILD_METIS=ON -S /home/nick/sofa/src -B /home/nick/sofa/build
+```
+
 1. Run CMake-GUI from the build folder
 ```
 cmake-gui
@@ -440,27 +414,19 @@ Set the C++ compiler to ```/usr/bin/clang++-12```
   * Make sure the path to installation of Qt is correct by adding an entry `CMAKE_PREFIX_PATH` (name) (Type: PATH) and setting it to the appropriate location (e.g. `/home/nick/Qt/5.13.2/gcc_64` ).
   <!-- `/home/jlorenze/Qt/5.15.0/gcc_64`). -->
 
-  * Add entry `SOFA_BUILD_METIS` and enable it (boolean, value checked).
-
 (The remaining options are for compiling plugins)
+> Alternatively, you can just run something like `cmake -G "CodeBlocks - Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_PREFIX_PATH=/home/nick/Qt/5.13.2/gcc_64 -DSOFA_BUILD_METIS=ON -DSOFA_EXTERNAL_DIRECTORIES=/home/nick/sofa-plugins -DSOFTROBOTS_IGNORE_ERRORS=ON -Dpybind11_DIR=/home/nick/.local/lib/python3.8/site-packages/pybind11/share/cmake/pybind11 -DPLUGIN_SOFTROBOTS=ON -DPLUGIN_SOFAPYTHON3=ON -DSTLIB=ON -S /home/nick/sofa/src -B /home/nick/sofa/$version` 
+
   * Find the entry `SOFA_EXTERNAL_DIRECTORIES` and set it to `$HOME/sofa-plugins` where `$HOME` is replaced with the actual path (e.g. `/home/nick/sofa-plugins`). 
-  * Also, add and enable entry `SOFTROBOTS_IGNORE_ERRORS` which will allow SoftRobots to compile without the STLIB library (boolean). 
   * Next, add a filepath entry `pybind11_DIR` to `/home/nick/anaconda3/envs/sofa/share/cmake/pybind11`.
 
-  * Ensure the following bool entries are activated : `PLUGIN_SOFTROBOTS`, `PLUGIN_SOFAPYTHON3`, `STLIB` (I had to add them).
+  * Ensure the following bool entries are activated : `PLUGIN_SOFTROBOTS`, `PLUGIN_SOFAPYTHON3`, `PLUGIN_STLIB` (I had to add them).
 
 6. Run **Configure** again. Note: red just means new stuff, so running configure again will just make the red go away (should complete with no error popups), and then run **Generate**.
 
 7. Finally, build by opening a new terminal and running ```ninja``` in the build directory. This will take a while if compiling for the first time; subsequent times should only compile changes.
-<!-- To build (use `-j` flag to use all cores):
-```
-cd $HOME/sofa/build
-make -j
-make install
-```
-This will take a while (approximately an hour without -j flag, or about 15 minutes with the -j flag which enables all cpu cores). -->
 
-Test that Sofa launches by running `$SOFA_BLD/bin/runSofa -l $SP3_BLD/lib/libSofaPython3.so`.
+Test that Sofa launches by running `$SOFA_BLD/bin/runSofa`.
 
 With plugins, try 
 ```
@@ -478,6 +444,7 @@ Note: these tutorial files are very helpful for basic functionality, i.e. for ex
 ---
 ## Install optimal control packages
 ---
+These instructions are modified from the stanford ASL git (https://github.com/StanfordASL/soft-robot-control)
 
 ##### Clone the StanfordASL soft-robot-control git
 In the home directory, git clone the repository from github: 
