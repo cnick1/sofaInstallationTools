@@ -4,9 +4,9 @@ mkdir ~/sofa/src
 mkdir ~/sofa/build
 
 sudo apt update && sudo apt upgrade -y
-sudo snap install --classic code -y
+sudo snap install --classic code
 sudo apt install git -y
-git clone -b https://github.com/sofa-framework/sofa.git ~/sofa/src
+git clone https://github.com/sofa-framework/sofa.git ~/sofa/src
 cd ~/sofa/src && git checkout v21.12
 
 sudo apt install build-essential software-properties-common -y
@@ -58,4 +58,5 @@ fi
 chmod +x qt-unified-linux-x64-online.run
 ./qt-unified-linux-x64-online.run 
 
+exec bash
 cmake -G "CodeBlocks - Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_PREFIX_PATH=/home/nick/Qt/5.13.2/gcc_64 -S /home/nick/sofa/src -B /home/nick/sofa/build
