@@ -107,4 +107,5 @@ git config --global credential.guiPrompt false
 git config --global credential.gitHubAuthModes browser
 
 
+git clone https://github.com/cnick1/sofaInstallationTools.git
 git clone https://github.com/cnick1/softRoboticsMR.git
