@@ -42,3 +42,6 @@ messFile=$(compgen -G "/home/nick/Downloads/MMESS*.mltbx")
 
 matlab -r "matlab.addons.install('$morlabFile')"
 matlab -r "matlab.addons.install('$messFile')"
+
+# Set scaling for high DPI display
+matlab -r 's = settings;s.matlab.desktop.DisplayScaleFactor; s.matlab.desktop.DisplayScaleFactor.PersonalValue = 2'
