@@ -11,3 +11,7 @@ cd /home/nick/softRoboticsMR
 git checkout modelOrderReduction
 
 echo "IN ORDER TO USE THE TRASH BIN ON THE DRIVE, EDIT THE MOUNT OPTIONS TO INCLUDE: uid=1000,gid=1000"
+
+echo "In order to use WSL1 with git, follow the following instructions in windows:"
+
+xdg-open https://learn.microsoft.com/en-us/windows/wsl/tutorials/wsl-git
