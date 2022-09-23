@@ -1,23 +1,17 @@
-# TL;DR
-To do everything automatically and install the v21.12 release of SOFA *without* plugins, run:
-```bash setupSofa.sh```
-If that works successfully, run the following to update to the master branch:
-```bash recompileSofa.sh master```
+# Summary
+If you want to just run the installer script, run ```setupSofa.sh'''. This will install SOFA and all its dependencies. 
 
-## Summary: 
-This repo contains 3 bash scripts (run by calling ```bash script.sh``` wherever the script is). 
-* ```setupSofa.sh```: This is the script which installs all the dependencies and compiles the last stable release of SOFA. 
-* ```recompileSofa.sh```: This is a script which is useful for compiling a different version of SOFA and all its plugins. It is intended to be run after ```setupSofa.sh``` has been run successfully. You can for example call ```bash recompileSofa.sh master``` to recompile SOFA and its plugins with the master branch. 
-* ```checkoutCompiledSofaVersion.sh```: This is a script which is useful for switching SOFA releases if they have already been compiled. Its usage is similar to ```recompileSofa.sh```, assuming the desired version of SOFA has already been compiled. 
- 
+
 
 # Sofa/Linux Installation and Compilation
-This notebook will work through the details to install Linux, configure it, download Sofa and all its dependencies, download all of the tools used to *compile* Sofa, and finally how to compile the source code into an executable binary program. Hopefully, I will be able to cross-compile in Linux for Windows so that I only need to use Linux occasionally.
-
-NOTE: The file setupSofa.sh is a bash script which will do all of the steps in this notebook automatically. This ReadMe file just serves to explain all of the steps, which may help identify any errors which may occur. Try to just run ```bash setupSofa.sh``` first. 
-
 Some other sources for instructions on building SOFA:
 * https://www.sofa-framework.org/community/doc/getting-started/build/linux/
+* https://github.com/StanfordASL/soft-robot-control/
+
+
+This notebook will work through the details to install Linux, configure it, download Sofa and all its dependencies, download all of the tools used to *compile* Sofa, and finally how to compile the source code into an executable binary program. Hopefully, I will be able to cross-compile in Linux for Windows so that I only need to use Linux occasionally.
+
+NOTE: The file setupSofa.sh is a bash script which will do all of the steps in this notebook automatically. This ReadMe file just serves to explain all of the steps, which may help identify any errors which may occur. Try to just run ```bash setupSofa``` first. 
 
 # Preliminaries for formatting a hard drive in Windows to install Linux onto
 0.    To remove an old partition, use Disk Management. If the EFI wont let you delete it, run cmd as admin and run (where x corresponds to the desired disk):
@@ -37,7 +31,7 @@ https://ubuntu.com/download/alternative-downloads
 https://www.balena.io/etcher/
 ```
 
-2.    CHANGE TO DISCRETE GPU BEFORE DOING THIS. Reboot and mash F2 to boot into the BIOS. Select the first partition on the Installation Medium as the boot drive, and save and exit the bios to boot into it. Run the installer and install Linux on the external drive.
+2.    CHANGE TO NVIDIA GPU BEFORE DOING THIS. (If you install Nvidia drivers, the os might only work on your computer...) Reboot and mash F2 to boot into the BIOS. Select the first partition on the Installation Medium as the boot drive, and save and exit the bios to boot into it. Run the installer and install Linux on the external drive.
 *   Select the "Something else" option 
 *   Use "-" to delete any partitions on the external drive 
 *   Use "+" to make a new partition on the external drive on the new "free space"
@@ -45,9 +39,14 @@ https://www.balena.io/etcher/
   *   Set the mount point to "/"
 *   Make sure to select the drive you wish to install Linux on as the bootloader option
 *   Make sure to select 3rd party drivers. It will make the NVIDIA drivers work.
-*   If you install with the iGPU, no problem, you just can't switch during using Linux. You will just have to boot into windows to switch, and then reinstall some drivers.
+*   If you install with the AMD GPU, no problem, you just can't switch during using Linux. You will just have to boot into windows to switch, and then reinstall some drivers.
 
-3.    Also take a moment to configure any simple system settings such as scaling, wifi, etc.
+3.    The first thing I would do is install MSEdge so that my password manager is installed. Then I can easily access github, google drive, etc
+*   When downloading the file, don't use the software manager. Just download the deb and run it. 
+
+At the time of writing this, MSEdge has a bug which throws off some other commands. A fix can be obtained by running this command: `wget https://packages.microsoft.com/keys/microsoft.asc && sudo apt-key add microsoft.asc `
+
+4.    Also take a moment to configure any simple system settings such as scaling, wifi, etc.
 
 *   To use gestures, do the following: https://ubuntuhandbook.org/index.php/2021/06/multi-touch-gestures-ubuntu-20-04/
 
@@ -447,3 +446,223 @@ The following is the most comprehensive introduction to SOFA which I have found.
 
 Note: these tutorial files are very helpful for basic functionality, i.e. for example how to make a standard python file which opens SOFA and runs a simulation.
 
+---
+## Install optimal control packages
+---
+These instructions are modified from the stanford ASL git (https://github.com/StanfordASL/soft-robot-control)
+
+##### Clone the StanfordASL soft-robot-control git
+In the home directory, git clone the repository from github: 
+```
+git clone https://github.com/StanfordASL/soft-robot-control soft-robot-control
+```
+
+##### Install Gurobi
+Instructions are for v9.5.2
+
+Install Gurobi [Official Instructions](https://cdn.gurobi.com/wp-content/plugins/hd_documentations/documentation/9.0/quickstart_linux.pdf) (Summarized instructions below)
+
+Download Gurobi and setup an **academic** account [here](https://www.gurobi.com/downloads/gurobi-optimizer-eula/) <!-- Password saved in MSEdge -->
+
+Run the following to install Gurobi in the system `/opt` folder
+```
+sudo tar xvfz ~/Downloads/gurobi9.5.2_linux64.tar.gz -C /opt/
+cd /opt/
+sudo chmod +777 /opt/gurobi952
+sudo chmod +777 /opt/gurobi952/linux64
+```
+Once gurobi is installed and you have you created an academic account, you need to obtain and install the license. You can obtain it [here](https://www.gurobi.com/downloads/end-user-license-agreement-academic/). When you run `grbgetkey`, refresh the page and it will be populated with the license info to enter into the terminal.
+If necessary, install a [VPN](https://blink.ucsd.edu/technology/network/connections/off-campus/VPN/linux.html#1.-Download-the-UCSD-VPN-AnyCon) to connect to UCSD's network so the license works. 
+Also, check that the .bashrc file is pointing to the correct file location, since we set the bashrc earlier. 
+
+You then need to put the license in `/opt/gurobi952` during `grbgetkey`.
+<!-- info  : License 765381 written to file /opt/gurobi952/gurobi.lic
+info  : You may have saved the license key to a non-default location
+info  : You need to set the environment variable GRB_LICENSE_FILE before you can use this license key
+info  : GRB_LICENSE_FILE=/opt/gurobi950/gurobi.lic -->
+
+Next, install Gurobi modules for Python (see full instructions [here](https://support.gurobi.com/hc/en-us/articles/360044290292-How-do-I-install-Gurobi-for-Python-), or just run the following command)
+```
+cd $GUROBI_HOME
+sudo python setup.py install
+```
+
+##### Installation of ROS2
+
+SofaPython3 requires Python 3.8, hence the instructions for ROS2 compatible with python3.8 (which is default for ubuntu 20.04) is provided. 
+
+Download the Debian binaries for ROS2 Foxy Fitzroy on ubuntu. 
+Follow the steps provided in the [full instructions here](https://docs.ros.org/en/foxy/Installation/Ubuntu-Install-Debians.html) to complete the setup of ROS2, or follow the summarized below. 
+
+You will need to add the ROS 2 apt repositories to your system. To do so, first authorize our GPG key with apt like this:
+```
+sudo apt update
+sudo apt install curl gnupg2 lsb-release
+sudo curl -sSL https://raw.githubusercontent.com/ros/rosdistro/master/ros.key  -o /usr/share/keyrings/ros-archive-keyring.gpg
+```
+And then add the repository to your sources list:
+```
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/ros-archive-keyring.gpg] http://packages.ros.org/ros2/ubuntu $(source /etc/os-release && echo $UBUNTU_CODENAME) main" | sudo tee /etc/apt/sources.list.d/ros2.list > /dev/null
+```
+
+##### Install ROS 2 packages
+Update your apt repository caches after setting up the repositories.
+```
+sudo apt update
+```
+Desktop Install (Recommended): ROS, RViz, demos, tutorials.
+```
+sudo apt install ros-foxy-desktop
+```
+
+Set up your environment by sourcing the following file.
+```
+source /opt/ros/foxy/setup.bash
+```
+
+<!-- ROS-Base Install (Bare Bones): Communication libraries, message packages, command line tools. No GUI tools.
+```
+sudo apt install ros-foxy-ros-base
+``` -->
+
+
+Follow steps below for further installation instructions.
+ROS2 recommends the usage of colcon for building packages:
+
+```
+sudo apt install python3-colcon-common-extensions
+pip install -U git+https://github.com/colcon/colcon-common-extensions.git
+```
+
+Lark parser is required for ROS2 
+
+```
+pip install lark_parser
+```
+
+*(If necessary, delete any old ros2 workspaces)*
+Next setup the ROS2 workspace. Follow the instructions of step 1+2 of the [guided tutorial](https://index.ros.org/doc/ros2/Tutorials/Workspace/Creating-A-Workspace/). Summarized here: 
+Run 
+```
+source /opt/ros/foxy/setup.bash
+mkdir -p ~/dev_ws/src
+cd ~/dev_ws/src
+```
+
+
+Next we will setup a package (using cmake) to have the service required for using SOFA with cvxpy, for Sequential Convex Programming trajectory optimization problems. Setup is based upon the [Custom ROS2 Interface Page](https://docs.ros.org/en/foxy/Tutorials/Beginner-Client-Libraries/Custom-ROS2-Interfaces.html):
+
+```
+# Navigate to src directory in root of workspace.
+ros2 pkg create --build-type ament_cmake soft_robot_control_ros
+cd soft_robot_control_ros
+mkdir srv
+cp ~/soft-robot-control/dependencies/ros/GuSTOsrv.srv srv/
+```
+
+(To open the necessary directory for the next two steps in VSCode, run `code .`)
+
+Add the following to `CMakeLists.txt` in `${WS_DIR}/src/soft_robot_control_ros`:
+* **Note: add this *BEFORE* the line containing** `ament_package()`
+
+
+```
+find_package(rosidl_default_generators REQUIRED)
+
+rosidl_generate_interfaces(soft_robot_control_ros
+  "srv/GuSTOsrv.srv"
+ )
+```
+
+Add the following to `package.xml`
+* **Note: add this *BEFORE* the line containing** `</package>`
+
+```
+<build_depend>rosidl_default_generators</build_depend>
+
+<exec_depend>rosidl_default_runtime</exec_depend>
+
+<member_of_group>rosidl_interface_packages</member_of_group>
+```
+
+Build the `soft_robot_control_ros` package from `~/dev_ws/`: run
+
+```
+cd ~/dev_ws
+colcon build --packages-select soft_robot_control_ros
+```
+*7/21/2022 I got an error when I tried this at first. I tried to follow some of the docs and I think what fixed it was installing the following: ```sudo apt install python3-rosdep2```*  *and activating it with ```rosdep update```. If this didn't work, try following the official docs linked above, I did something from there.*
+
+To source it, within your workspace `~/dev_ws/`, run:
+
+```
+. install/setup.bash  # Alternative: . install/setup.zsh
+```
+
+To validate that the service is created run the `ros2 interface show` command:
+
+```
+ros2 interface show soft_robot_control_ros/srv/GuSTOsrv
+```
+
+---
+## Setup Environment variables (optional)
+
+Add the following to your `.bashrc` file to auto source ROS 2 workspaces
+```
+source /opt/ros/foxy/setup.bash
+source $HOME/dev_ws/install/setup.bash
+conda activate sofa
+```
+or simply run
+```
+printf "\nsource /opt/ros/foxy/setup.bash\nsource \$HOME/dev_ws/install/setup.bash\nconda activate sofa\n\n" >> ~/.bashrc
+```
+---
+## Running soft-robot-control and Sofa
+*Unfortunately, Sander's code no longer runs on the newest version of SOFA. I tried reverting to the SOFA that existed when he wrote the code, but SofaPython3 was not officially supported at that time so the installation of SofaPython3 no longer works with those versions. STLIB also seems to have issues. John Alora is supposedly working on fixing Sander's code so that it runs again, I am not sure of that progress (7/26/2022). Since at this point SOFA and the plugins are correctly installed, I am quitting here for now. *
+
+There are two methods to launching simulations using soft-robot-control with Sofa. Both require setting the problem file
+in `problem_specification.py`.
+
+0. Ensure that the `diamond_rompc` problem in `problem_specification.py` is uncommented `code ~/soft-robot-control/problem_specification.py`: 
+
+1. Run with the simulation GUI. 
+`$SOFA_BLD/bin/runSofa -l $SP3_BLD/lib/libSofaPython3.so -l $SP3_BLD/external_directories/sofa-plugins/SoftRobots/lib/libSoftRobots.so ~/soft-robot-control/launch_sofa.py`
+
+`$SOFA_BLD/bin/runSofa -l $SP3_BLD/lib/libSofaPython3.so -l $SP3_BLD/external_directories/sofa-plugins/SoftRobots/lib/libSoftRobots.so -l $SP3_BLD/external_directories/sofa-plugins/STLIB/lib/libSTLIB.so ~/soft-robot-control/launch_sofa.py`
+
+
+
+
+
+
+
+`$SOFA_BLD/bin/runSofa -l $SP3_BLD/lib/libSofaPython3.so ~/soft-robot-control/launch_sofa.py` then `python3 ~/soft-robot-control/examples/diamond/diamond_rompc.py run_rompc_solver` to run controller.
+
+2. Run in the background. `python launch_sofa.py` (Requires modifying `sofa_lib_path` to match environment in `launch_sofa.py` file)
+
+---
+
+
+
+## References
+
+[1] F. Faure, C. Duriez, H. Delingette, J. Allard, B. Gilles, S. Marchesseau,
+H. Talbot, H. Courtecuisse, G. Bousquet, I. Peterlik, and S. Cotin,
+“SOFA: A multi-model framework for interactive physical simulation,”
+in Soft Tissue Biomechanical Modeling for Computer Assisted Surgery, 2012. 
+
+[2] E. Coevoet, T. Morales-Bieze, F. Largilliere, Z. Zhang, M. Thieffry,
+M. Sanz-Lopez, B. Carrez, D. Marchal, O. Goury, J. Dequidt, and
+C. Duriez, “Software toolkit for modeling, simulation, and control of
+soft robots,” Advanced Robotics, vol. 31, no. 22, pp. 1208–1224, 2017.
+
+git checkout 5698b
+
+export SP3_BLD=$HOME/sofa/build/external_directories/sofa-plugins/SofaPython3
+
+$SOFA_BLD/bin/runSofa -l $SP3_BLD/lib/libSofaPython3.so /home/nick/sofa-plugins/SoftRobots/docs/sofapython3/tutorials/DiamondRobot/DiamondRobot.py 
+
+https://github.com/sofa-framework/sofa/discussions/2912s
+"""

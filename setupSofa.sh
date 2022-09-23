@@ -13,9 +13,6 @@ git config --global user.email $email
 read -p "Enter your name for git: " name
 git config --global user.name $name
 
-git clone https://github.com/cnick1/sofaInstallationTools.git
-
-
 git clone https://github.com/sofa-framework/sofa.git ~/sofa/src
 cd ~/sofa/src && git checkout v21.12
 
@@ -80,8 +77,8 @@ then
     ./qt-unified-linux-x64-online.run 
 fi
 
-cmake -G "CodeBlocks - Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_PREFIX_PATH=$HOME/Qt/5.13.2/gcc_64 -S $HOME/sofa/src -B $HOME/sofa/build
-cd $HOME/sofa/build
+cmake -G "CodeBlocks - Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_PREFIX_PATH=/home/nick/Qt/5.13.2/gcc_64 -S /home/nick/sofa/src -B /home/nick/sofa/build
+cd /home/nick/sofa/build
 ninja
 
 while true; do
@@ -94,3 +91,24 @@ while true; do
 done
 
 
+
+if [ ! -f "gcm-linux_amd64.2.0.785.deb" ]
+then
+    wget https://github.com/GitCredentialManager/git-credential-manager/releases/download/v2.0.785/gcm-linux_amd64.2.0.785.deb
+else
+    echo "git-credential-manager downloader file exists."
+fi
+
+sudo dpkg -i gcm-linux_amd64.2.0.785.deb
+git-credential-manager-core configure
+git config --global credential.credentialStore cache
+git config --global credential.cacheoptions "--timeout 72000"
+
+git config --global credential.guiPrompt false
+git config --global credential.gitHubAuthModes browser
+
+
+git clone https://github.com/cnick1/sofaInstallationTools.git
+git clone https://github.com/cnick1/softRoboticsMR.git
+
+gsettings set org.gnome.shell.extensions.dash-to-dock isolate-workspaces true
