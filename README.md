@@ -1,3 +1,8 @@
+# Summary
+If you want to just run the installer script, run ```setupSofa.sh'''. This will install SOFA and all its dependencies. 
+
+
+
 # Sofa/Linux Installation and Compilation
 Some other sources for instructions on building SOFA:
 * https://www.sofa-framework.org/community/doc/getting-started/build/linux/
