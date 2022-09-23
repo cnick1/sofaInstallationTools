@@ -1,8 +1,12 @@
 # TL;DR
 To do everything automatically and install the v21.12 release of SOFA *without* plugins, run:
-```bash setupSofa.sh```
+```
+bash setupSofa.sh
+```
 If that works successfully, run the following to update to the master branch:
-```bash recompileSofa.sh master```
+```
+bash recompileSofa.sh master
+```
 
 ## Summary: 
 This repo contains 3 bash scripts (run by calling ```bash script.sh``` wherever the script is). 
