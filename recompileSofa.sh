@@ -17,7 +17,7 @@ git pull
 git checkout $version
 
 cd ~/sofa-plugins/SoftRobots
-git pulls
+git pull
 git checkout $version
 cd ~/sofa-plugins/SofaPython3
 git pull
@@ -31,7 +31,11 @@ mkdir $HOME/sofa/$version
 
 cd ~/sofa/$version
 
-cmake -G "CodeBlocks - Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_PREFIX_PATH=$HOME/Qt/5.13.2/gcc_64 -DSOFA_EXTERNAL_DIRECTORIES=$HOME/sofa-plugins -Dpybind11_DIR=$HOME/.local/lib/python3.8/site-packages/pybind11/share/cmake/pybind11 -DPLUGIN_SOFTROBOTS=ON -DPLUGIN_SOFAPYTHON3=ON -DPLUGIN_STLIB=ON -S $HOME/sofa/src -B $HOME/sofa/$version
+for f in $HOME/Qt/6*; do
+	prefix_path=$f
+	break
+done
+cmake -G "CodeBlocks - Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_PREFIX_PATH=$prefix_path/bin -DSOFA_EXTERNAL_DIRECTORIES=$HOME/sofa-plugins -Dpybind11_DIR=$HOME/.local/lib/python3.8/site-packages/pybind11/share/cmake/pybind11 -DPLUGIN_SOFTROBOTS=ON -DPLUGIN_SOFAPYTHON3=ON -DPLUGIN_STLIB=ON -S $HOME/sofa/src -B $HOME/sofa/$version
 
 ninja
 

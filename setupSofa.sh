@@ -135,8 +135,12 @@ then
     chmod +x qt-unified-linux-x64-online.run
     ./qt-unified-linux-x64-online.run 
 fi
-
-cmake -G "CodeBlocks - Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_PREFIX_PATH=$HOME/Qt/5.13.2/gcc_64 -S $HOME/sofa/src -B $HOME/sofa/build
+for f in $HOME/Qt/6*; do
+	prefix_path=$f
+	break
+done
+echo ${prefix_path}
+cmake -G "CodeBlocks - Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_PREFIX_PATH=${prefix_path}/gcc_64 -S $HOME/sofa/src -B $HOME/sofa/build
 cd $HOME/sofa/build
 ninja
 
