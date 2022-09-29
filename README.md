@@ -1,5 +1,5 @@
 # TL;DR
-To do everything automatically and install the v21.12 release of SOFA *without* plugins, run:
+On a fresh Ubuntu 20.04 install, to do everything automatically and install the v21.12 release of SOFA *without* plugins, run:
 ```
 bash setupSofa.sh
 ```
