@@ -28,18 +28,74 @@ then
 else
     echo "cmake downloader file exists."
 fi
+
 tar xf cmake-3.22.2-linux-x86_64.tar.gz
 
-if [ ! command -v code &> /dev/null ]
-then
+if ! [[ $(command -v code) ]]; then
     sudo snap install --classic code
-    printf "\nexport PATH=\"`pwd`/cmake-3.22.2-linux-x86_64/bin:\$PATH\" # save it in .bashrc if needed\n\n" >> .bashrc
-    printf "\nexport PYTHONPATH=\"\$HOME/sofa-plugins/STLIB/python3/src:\$HOME/sofa/build/lib/python3/site-packages\"\nexport SP3_BLD=$HOME/sofa/build\nexport SOFA_BLD=\$HOME/sofa/build\nexport SOFA_ROOT=\$HOME/sofa/build\nexport GUROBI_HOME=\"/opt/gurobi952/linux64\"\nexport PATH=\"\${PATH}:\${GUROBI_HOME}/bin\"\nexport LD_LIBRARY_PATH=\"\${LD_LIBRARY_PATH}:\${GUROBI_HOME}/lib\"\nexport GRB_LICENSE_FILE=/opt/gurobi952/gurobi.lic\n\n " >> .bashrc
-    printf "\nalias sofa='$SOFA_ROOT/bin/runSofa' \n" >> .bashrc
-    source ~/.bashrc
-    exit
 fi
 
+#check if env variables exist and if missing add them, check path before appending to prevent cluttered path variable
+if ! [[ "$PATH" =~ .*"cmake-3.22.2-linux-x86_64/bin".* ]]; then
+    export PATH="$HOME/cmake-3.22.2-linux-x86_64/bin:$PATH"
+    echo "export PATH=\"\$HOME/cmake-3.22.2-linux-x86_64/bin:\$PATH\"" >> $HOME/.bashrc
+fi
+
+if [ -z "$PYTHONPATH" ]
+then
+    export PYTHONPATH="$HOME/sofa-plugins/STLIB/python3/src:$HOME/sofa/build/lib/python3/site-packages"
+    echo " export PYTHONPATH=\"\$HOME/sofa-plugins/STLIB/python3/src:\$HOME/sofa/build/lib/python3/site-packages\"" >> $HOME/.bashrc
+fi
+
+if [ -z "$SP3_BLD" ]
+then
+    export SP3_BLD=$HOME/sofa/build
+    echo "export SP3_BLD=\"\$HOME/sofa/build\"" >> $HOME/.bashrc
+fi
+
+if [ -z "$SOFA_BLD" ]
+then
+    export SOFA_BLD=\$HOME/sofa/build
+    
+    echo "export SOFA_BLD=\"\$HOME/sofa/build\"" >> $HOME/.bashrc
+fi
+
+if [ -z "$SOFA_ROOT" ]
+then
+    export SOFA_ROOT=$HOME/sofa/build
+    echo "export SOFA_ROOT=\"\$HOME/sofa/build\"" >> $HOME/.bashrc
+    echo "alias sofa='$SOFA_ROOT/bin/runSofa'" >> .bash_aliases
+fi
+
+if [ -z "$GUROBI_HOME" ]
+then
+    export GUROBI_HOME="/opt/gurobi952/linux64"
+    
+    echo "export GUROBI_HOME=\"/opt/gurobi952/linux64\"" >> $HOME/.bashrc
+fi
+
+if [ -z "$LD_LIBRARY_PATH" ]
+then
+    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+    echo "export LD_LIBRARY_PATH=\"\$LD_LIBRARY_PATH}:\${GUROBI_HOME}/lib\"" >> $HOME/.bashrc
+elif ! [[ "$LD_LIBRARY_PATH" =~ .*"${GUROBI_HOME}/lib".* ]]; then
+    export LD_LIBRARY_PATH="${LD_LIBRARY_PATH}:${GUROBI_HOME}/lib"
+    echo "export LD_LIBRARY_PATH=\"\$LD_LIBRARY_PATH}:\${GUROBI_HOME}/lib\"" >> $HOME/.bashrc
+
+fi
+
+
+if [ -z "$GRB_LICENSE_FILE" ]
+then
+    export GRB_LICENSE_FILE="/opt/gurobi952/gurobi.lic"
+    echo "export GRB_LICENSE_FILE=\"/opt/gurobi952/gurobi.lic\"" >> $HOME/.bashrc
+fi
+
+if ![[ "$PATH" =~ .*"${GUROBI_HOME}/lib".* ]]; then
+	export PATH="${PATH}:${GUROBI_HOME}/bin"
+	echo "export PATH=\"\${PATH}:\${GUROBI_HOME}/bin\"" >> $HOME/.bashrc
+	
+fi	
 
 sudo apt install ninja-build ccache libxcb-xinerama0 libopengl0 libboost-all-dev python3 python3-numpy python3-scipy python3-pip -y
 sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
@@ -79,18 +135,23 @@ then
     chmod +x qt-unified-linux-x64-online.run
     ./qt-unified-linux-x64-online.run 
 fi
-
-cmake -G "CodeBlocks - Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_PREFIX_PATH=$HOME/Qt/5.13.2/gcc_64 -S $HOME/sofa/src -B $HOME/sofa/build
+for f in $HOME/Qt/6*; do
+	prefix_path=$f
+	break
+done
+echo ${prefix_path}
+cmake -G "CodeBlocks - Ninja" -DCMAKE_C_COMPILER=/usr/bin/clang-12 -DCMAKE_CXX_COMPILER=/usr/bin/clang++-12 -DCMAKE_PREFIX_PATH=${prefix_path}/gcc_64 -S $HOME/sofa/src -B $HOME/sofa/build
 cd $HOME/sofa/build
 ninja
+
+echo "Start a new terminal session before rerunning the setupSofa.sh script again to apply .bashrc changes and prevent clutter to environment variables."
 
 while true; do
     read -p "Do you wish to run SOFA? [Y/n] " Yn
     case "${yn:-Y}" in
-        [Yy]* ) $SOFA_BLD/bin/runSofa; break;;
+        [Yy]* ) "$HOME/sofa/build/bin/runSofa"; break;;
         [Nn]* ) exit;;
         * ) echo "Please answer yes or no.";;
     esac
 done
-
 
