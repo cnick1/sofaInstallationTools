@@ -146,3 +146,14 @@ echo "This will be written to ~/cmake_cmd.txt for refrence when recompiling a de
 echo "$CMD" > $HOME/cmake_cmd.txt
 
 
+while true; do
+    read -p "Do you wish to run SOFA? [Y/n] " Yn
+    case "${yn:-Y}" in
+        [Yy]* ) $HOME/sofa/build/$VERSION/bin/runSofa; break;;
+        [Nn]* ) exit;;
+        * ) echo "Please answer yes or no.";;
+    esac
+done
+
+
+
