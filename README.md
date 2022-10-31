@@ -464,6 +464,8 @@ Install Gurobi [Official Instructions](https://cdn.gurobi.com/wp-content/plugins
 
 Download Gurobi and setup an **academic** account [here](https://www.gurobi.com/downloads/gurobi-optimizer-eula/) <!-- Password saved in MSEdge -->
 
+[direct-download-link](https://packages.gurobi.com/9.5/gurobi9.5.2_linux64.tar.gz)
+
 Run the following to install Gurobi in the system `/opt` folder
 ```
 sudo tar xvfz ~/Downloads/gurobi9.5.2_linux64.tar.gz -C /opt/
