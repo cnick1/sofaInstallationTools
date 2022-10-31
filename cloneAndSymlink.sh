@@ -7,6 +7,9 @@ ln -s /mnt/e/share/sofaInstallationTools /home/nick
 git clone https://github.com/cnick1/softRoboticsMR.git
 ln -s /mnt/e/share/softRoboticsMR /home/nick
 
+git clone https://github.com/cnick1/soft-robot-control.git
+ln -s /mnt/e/share/soft-robot-control /home/nick
+
 cd /home/nick/softRoboticsMR
 git checkout modelOrderReduction
 
